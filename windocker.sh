@@ -7,6 +7,8 @@ Threshold=$4
 ScanDate=`date +%Y%m%d-%H%M%S`
 JsonFilePath=`pwd`
 ScanResultFile=$JsonFilePath/$UserID-$ScanDate.json
+ClairScanner=`which clair-scanner`
+
 
 ## Functions Section
 GrepResult() {
@@ -20,21 +22,16 @@ GrepResult() {
 ## Main Program Section
 
 # chekc number of parameter
-[ "$#" -lt 4 ] && echo "The number of parameter is less than 3.  Stop here." && exit 0
+[ "$#" -lt 4 ] && echo "The number of parameter is less than 4.  Stop here." && exit
 
 # pull images from registry & scan image
-docker pull $ImageName && clair-scanner --ip $ServerIP -r $JsonFilePath/$UserID-$ScanDate.json $ImageName 1>/dev/null
+docker pull $ImageName && $ClairScanner --ip $ServerIP -r $JsonFilePath/$UserID-$ScanDate.json $ImageName 1>/dev/null
 
 # check report & return serverity
 if [ -e $ScanResultFile ]; then
     GrepResult $ScanResultFile $Threshold
-    ReturnServerity=$?
-    [ $ReturnServerity -le 255 ] && Serverity=$ReturnServerity || Serverity=255
+    echo "{ \"Serverity\": \"$?\" }" >  $JsonFilePath/$UserID-$ScanDate-Serverity.json
     docker rmi $ImageName
-    exit $Serverity
 else
-    echo "No Such Scan Report"
+    echo "No Such Scan Report" && exit
 fi
-
-
-
