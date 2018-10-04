@@ -28,11 +28,13 @@ docker pull $ImageName && clair-scanner --ip $ServerIP -r $JsonFilePath/$UserID-
 # check report & return serverity
 if [ -e $ScanResultFile ]; then
     GrepResult $ScanResultFile $Threshold
-    Serverity=$?
+    ReturnServerity=$?
+    [ $ReturnServerity -le 255 ] && Serverity=$ReturnServerity || Serverity=255
     docker rmi $ImageName
     exit $Serverity
 else
     echo "No Such Scan Report"
 fi
+
 
 
