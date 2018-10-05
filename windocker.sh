@@ -25,7 +25,7 @@ GrepResult() {
 [ "$#" -lt 4 ] && echo "The number of parameter is less than 4.  Stop here." && exit
 
 # pull images from registry & scan image
-[ !-e `which clair-scanner` ] && echo "No clair-scanner found" && exit 
+[ ! -e `which clair-scanner` ] && echo "No clair-scanner found" && exit 
 docker pull $ImageName && $ClairScanner --ip $ServerIP -r $JsonFilePath/$UserID-$ScanDate.json $ImageName 1>/dev/null
 
 # check report & return serverity
